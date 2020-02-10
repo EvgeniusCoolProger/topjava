@@ -30,11 +30,6 @@ public class MealServlet extends HttpServlet {
         req.getRequestDispatcher("/meals.jsp").forward(req, resp);
     }
 
-    @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        log.debug("redirect to meals");
-    }
-
     private static List<MealTo> initToList() {
 
         List<Meal> meals = new ArrayList<>();
