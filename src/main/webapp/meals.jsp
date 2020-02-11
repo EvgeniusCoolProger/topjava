@@ -14,17 +14,16 @@
     <title>Meals</title>
 </head>
 <body>
-        <table align = "center">
-            <th style = "text-align: center">Meal's List</th>
-            <c:set var="pattern" value="dd-MM-yyyy HH:mm"/>
+        <table align = "center" border="1">
+            <c:set var="dateTimeFormatter" value="${DateTimeFormatter.ofPattern(\"dd-MM-yyyy HH:mm\")}"/>
             <c:forEach var = "meal" items = "${meals}">
             <c:if test="${meal.excess}">
                 <tr style="color: red">
             </c:if>
                 <c:if test="${meal.excess == false}">
-                    <tr style="color: blue">
+                    <tr style="color: green">
                 </c:if>
-                    <td>${meal.dateTime.format(DateTimeFormatter.ofPattern(pattern))}</td>
+                    <td>${meal.dateTime.format(dateTimeFormatter)}</td>
                     <td>${meal.description}</td>
                     <td>${meal.calories}</td>
                 </tr>
