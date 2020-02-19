@@ -7,6 +7,7 @@ import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.repository.UserRepository;
 import ru.javawebinar.topjava.util.UsersUtil;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -25,13 +26,13 @@ public class InMemoryUserRepository implements UserRepository {
 
     @Override
     public boolean delete(int id) {
-        log.info("delete {}", id);
+        log.info("delete user {}", id);
         return repository.remove(id) != null;
     }
 
     @Override
     public User save(User user) {
-        log.info("save {}", user);
+        log.info("save user {}", user);
         if (user.isNew()) {
             user.setId(counter.incrementAndGet());
             repository.put(user.getId(), user);
@@ -42,22 +43,21 @@ public class InMemoryUserRepository implements UserRepository {
 
     @Override
     public User get(int id) {
-        log.info("get {}", id);
+        log.info("get user {}", id);
         return repository.get(id);
     }
 
     @Override
     public List<User> getAll() {
-        log.info("getAll");
+        log.info("getAll users");
         return repository.values().stream()
-                .sorted((u1, u2) -> !u1.getName().equals(u2.getName()) ?
-                        u1.getName().compareTo(u2.getName()) : u1.getEmail().compareTo(u2.getEmail()))
+                .sorted(Comparator.comparing(User :: getName).thenComparing(User :: getEmail))
                 .collect(Collectors.toList());
     }
 
     @Override
     public User getByEmail(String email) {
-        log.info("getByEmail {}", email);
+        log.info("getByEmail{}", email);
         return repository.values().stream()
                 .filter(u -> u.getEmail().equals(email))
                 .findFirst().orElse(null);

@@ -10,6 +10,7 @@ import ru.javawebinar.topjava.to.MealTo;
 import ru.javawebinar.topjava.util.MealsUtil;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 import static ru.javawebinar.topjava.util.ValidationUtil.assureIdConsistent;
@@ -30,10 +31,10 @@ public class MealRestController {
         return MealsUtil.getTos(meals, authUserCaloriesPerDay());
     }
 
-    public List<MealTo> getAll(LocalDate startDate, LocalDate endDate) {
-        log.info("getAll from meals between dates");
+    public List<MealTo> getAll(LocalDate startDate, LocalTime startTime, LocalDate endDate, LocalTime endTime) {
+        log.info("getAll from meals between dates and times");
         List<Meal> meals = service.getBetweenDates(startDate, endDate, authUserId());
-        return MealsUtil.getTos(meals, authUserCaloriesPerDay());
+        return MealsUtil.getFilteredTos(meals, authUserCaloriesPerDay(), startTime, endTime);
     }
 
     public Meal get(int id) {

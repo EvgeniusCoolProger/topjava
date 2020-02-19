@@ -7,11 +7,10 @@ import ru.javawebinar.topjava.util.DateTimeUtil;
 import ru.javawebinar.topjava.util.MealsUtil;
 
 import java.time.LocalDate;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Repository
@@ -20,7 +19,7 @@ public class InMemoryMealRepository implements MealRepository {
     private AtomicInteger counter = new AtomicInteger(0);
 
     {
-        MealsUtil.MEALS.forEach(meal -> save(meal, -1));
+        MealsUtil.MEALS.forEach(meal -> save(meal, 1));
     }
 
     @Override
@@ -31,7 +30,7 @@ public class InMemoryMealRepository implements MealRepository {
             repository.put(meal.getId(), meal);
             return meal;
         }
-        if (meal.getUserId() != userId) {
+        if (repository.get(meal.getId()).getUserId() != userId) {
             return null;
         }
         return repository.computeIfPresent(meal.getId(), (id, oldMeal) -> meal);
@@ -42,8 +41,7 @@ public class InMemoryMealRepository implements MealRepository {
         if (get(id, userId) == null) {
             return false;
         }
-        repository.remove(id);
-        return true;
+        return repository.remove(id) != null;
     }
 
     @Override
@@ -58,18 +56,21 @@ public class InMemoryMealRepository implements MealRepository {
 
     @Override
     public List<Meal> getBetween(LocalDate startDate, LocalDate endDate, int userId) {
-        return getAll(userId).stream()
-                .filter(meal -> DateTimeUtil.isBetweenInclusive(meal.getDate(), startDate, endDate))
-                .collect(Collectors.toList());
+        return getAllSortedByDateTimeReversed(meal ->
+                (DateTimeUtil.isBetweenInclusive(meal.getDate(), startDate, endDate))
+                        && meal.getUserId() == userId);
     }
 
     @Override
     public List<Meal> getAll(int userId) {
+        return getAllSortedByDateTimeReversed(meal -> meal.getUserId() == userId);
+    }
+
+    private List<Meal> getAllSortedByDateTimeReversed(Predicate<Meal> filter) {
         return repository.values().stream()
-                .filter(meal -> meal.getUserId() == userId)
+                .filter(filter)
                 .sorted(Comparator.comparing(Meal::getDateTime).reversed())
                 .collect(Collectors.toList());
     }
-
 }
 
