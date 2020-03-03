@@ -29,6 +29,7 @@ public class MealServiceTest {
 
     @Autowired
     private MealService service;
+
     @Autowired
     private MealRepository repository;
 
